@@ -1,0 +1,83 @@
+do
+    local Translations = {
+        ["情云"] = "杨志卡",
+        ["脚本中心"] = "kai Hub",
+        ["834856433"] = "659522951",
+        ["DC群组：https://discord.gg/KxZX9pP6vh"] = "作者qq：2490035277",
+    }
+
+    local function translateText(text)
+        if not text or type(text) ~= "string" then return text end
+        for en, cn in pairs(Translations) do
+            if text == en then
+                return cn
+            end
+        end
+        local result = text
+        for en, cn in pairs(Translations) do
+            result = result:gsub(en, cn)
+        end
+        return result
+    end
+
+    local success, err = pcall(function()
+        local mt = getrawmetatable(game)
+        local oldNewIndex = mt.__newindex
+        setreadonly(mt, false)
+        mt.__newindex = newcclosure(function(self, key, value)
+            if (self:IsA("TextLabel") or self:IsA("TextButton") or self:IsA("TextBox")) and key == "Text" then
+                value = translateText(tostring(value))
+            end
+            return oldNewIndex(self, key, value)
+        end)
+        setreadonly(mt, true)
+    end)
+    if not success then
+        local translated = setmetatable({}, {__mode = "k"})
+        local function scanAndTranslate(container)
+            for _, obj in ipairs(container:GetDescendants()) do
+                if (obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox")) and not translated[obj] then
+                    pcall(function()
+                        local original = obj.Text
+                        if original and original ~= "" then
+                            local translatedText = translateText(original)
+                            if translatedText ~= original then
+                                obj.Text = translatedText
+                                translated[obj] = true
+                            end
+                        end
+                    end)
+                end
+            end
+        end
+        local function setupListener(parent)
+            parent.DescendantAdded:Connect(function(desc)
+                task.wait(0.05)
+                if desc:IsA("TextLabel") or desc:IsA("TextButton") or desc:IsA("TextBox") then
+                    pcall(function()
+                        local newText = translateText(desc.Text)
+                        if newText ~= desc.Text then
+                            desc.Text = newText
+                        end
+                    end)
+                end
+            end)
+        end
+        pcall(setupListener, game:GetService("CoreGui"))
+        local player = game:GetService("Players").LocalPlayer
+        if player and player:FindFirstChild("PlayerGui") then
+            pcall(setupListener, player.PlayerGui)
+        end
+        task.spawn(function()
+            while true do
+                scanAndTranslate(game:GetService("CoreGui"))
+                if player and player.PlayerGui then
+                    scanAndTranslate(player.PlayerGui)
+                end
+                task.wait(2)
+            end
+        end)
+    end
+
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ChinaQY/-/main/%E6%83%85%E4%BA%91"))()
+end
