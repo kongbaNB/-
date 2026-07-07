@@ -1,4 +1,3 @@
-loadstring(game:HttpGet("https://ivyy.lol/kongbai/zgr"))() 
 do
     local Translations = {
         ["Homelander"] = "祖国人",
