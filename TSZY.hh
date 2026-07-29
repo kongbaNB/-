@@ -1,3 +1,4 @@
+--秋辞汉化
 do
     local Translations = {
         ["Toggle"] = "切换",
