@@ -1,0 +1,111 @@
+do
+    local T = {
+        ["One Punch"] = "一拳",
+        ["One Slap"] = "一巴掌",
+        ["Spin Kick"] = "旋转踢",
+        ["Drop kick"] = "飞踢",
+        ["Drop Kick"] = "飞踢",
+        ["TSB Punch"] = "TSB重拳",
+        ["Upper Cut"] = "上勾拳",
+        ["Fling Settings"] = "弹飞设置",
+        ["Keybind Settings"] = "按键绑定设置",
+        ["Fling Power"] = "弹飞力度",
+        ["Fling"] = "弹飞",
+        ["SET"] = "绑定",
+        ["Our discord server link has been copied!"] = "我们的Discord服务器链接已复制！",
+        ["Made By Stormzdev"] = "由Stormzdev制作\n恐拜大帝汉化\n恐脚本qq群：461440703",
+        ["discord.gg/uwustudios"] = "discord.gg/uwustudios",
+        ["one punch"] = "一拳",
+        ["one slap"] = "一巴掌",
+        ["spin kick"] = "旋转踢",
+        ["drop kick"] = "飞踢",
+        ["tsb punch"] = "TSB重拳",
+        ["upper cut"] = "上勾拳",
+        ["fling settings"] = "弹飞设置",
+        ["keybind settings"] = "按键绑定设置",
+        ["fling power"] = "弹飞力度",
+        ["fling"] = "弹飞",
+        ["set"] = "绑定",
+        ["made by stormzdev"] = "由Stormzdev制作\n恐拜大帝汉化\n恐脚本qq群：461440703",
+        ["our discord server link has been copied!"] = "我们的Discord服务器链接已复制！",
+    }
+
+    local function tr(s)
+        if type(s) ~= "string" then return s end
+        if T[s] then return T[s] end
+        for k,v in pairs(T) do
+            if s:find(k) then
+                return s:gsub(k,v)
+            end
+        end
+        return s
+    end
+
+    local done = {}
+    local Players = game:GetService("Players")
+    local CoreGui = game:GetService("CoreGui")
+
+    local function scan(parent)
+        if not parent then return end
+        pcall(function()
+            for _, o in ipairs(parent:GetDescendants()) do
+                if not done[o] and (o:IsA("TextLabel") or o:IsA("TextButton") or o:IsA("TextBox")) then
+                    pcall(function()
+                        local t = o.Text
+                        if t and t ~= "" then
+                            local n = tr(t)
+                            if n ~= t then
+                                o.Text = n
+                                done[o] = true
+                            end
+                        end
+                    end)
+                end
+            end
+        end)
+    end
+
+    local function setupListener(parent)
+        if not parent then return end
+        pcall(function()
+            parent.DescendantAdded:Connect(function(descendant)
+                task.wait(0.1)
+                pcall(function()
+                    if descendant:IsA("TextLabel") or descendant:IsA("TextButton") or descendant:IsA("TextBox") then
+                        local t = descendant.Text
+                        if t and t ~= "" then
+                            local n = tr(t)
+                            if n ~= t then
+                                descendant.Text = n
+                            end
+                        end
+                    end
+                end)
+            end)
+        end)
+    end
+
+    local p = Players.LocalPlayer
+
+    scan(CoreGui)
+    if p and p:FindFirstChild("PlayerGui") then
+        scan(p.PlayerGui)
+    end
+
+    setupListener(CoreGui)
+    if p and p:FindFirstChild("PlayerGui") then
+        setupListener(p.PlayerGui)
+    end
+
+    spawn(function()
+        while true do
+            wait(1)
+            scan(CoreGui)
+            if p and p:FindFirstChild("PlayerGui") then
+                scan(p.PlayerGui)
+            end
+        end
+    end)
+
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/stormzdev/universal/refs/heads/main/dropkick.lua"))()
+end
